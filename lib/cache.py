@@ -6,6 +6,29 @@ from .debug import debug
 CACHE_PATH = 'cache'
 BUF_SIZE = 4096
 
+def create_cachedir():
+    if not os.path.exists(CACHE_PATH):
+        debug(f"Creating cache directory for requests at {CACHE_PATH}/")
+        os.mkdir(CACHE_PATH)
+
+def cached_name(name):
+    """
+    Return the cache path for name
+    """
+    hashname = hashlib.sha1(name.encode()).hexdigest()
+    return f'{CACHE_PATH}/{hashname}'
+
+def has_cached(name):
+    return os.path.isfile(cached_name(name))
+
+def open_cached(name, mode='r'):
+    """
+    Open file from cache. Check if file exists with has_cached first (if not overwriting /
+    handling exception)
+    """
+    create_cachedir()
+    return open(cached_name(name), mode=mode)
+
 def open_url(url, mode='r', cached = True, update = False):
     """
     Returns a read handle for URL, either cached or not.
@@ -13,12 +36,8 @@ def open_url(url, mode='r', cached = True, update = False):
     cached: Try to cache object / retrieve cached object if available (default = yes)
     update: Validate cached object from server (if-modified-since) (default = no, unimplemented for now)
     """
-    urlhash = hashlib.sha1(url.encode()).hexdigest()
-    cached_url = f'{CACHE_PATH}/{urlhash}'
-    if cached:
-        if not os.path.exists(CACHE_PATH):
-            debug(f"Creating cache directory for requests at {CACHE_PATH}/")
-            os.mkdir(CACHE_PATH)
+    cached_url = cached_name(url)
+    create_cachedir()
     if not cached or not os.path.isfile(cached_url):
         # Not in/from cache
         # The contents are always written to disk first; if url misbehaves this is were we fall
