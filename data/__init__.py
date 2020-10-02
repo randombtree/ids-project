@@ -1,0 +1,1 @@
+from .seasonal_anomalities import get_seasonal_anomalities
