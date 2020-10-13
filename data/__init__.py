@@ -4,6 +4,8 @@
 try:
     from data.seasonal_anomalities import get_seasonal_anomalities
     from data.properties import get_properties
+    from data.energy import get_monthly_energy_data
 except ModuleNotFoundError:
     from .seasonal_anomalities import get_seasonal_anomalities
     from .properties import get_properties
+    from .energy import get_monthly_energy_data
