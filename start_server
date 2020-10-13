@@ -1,0 +1,10 @@
+#!/bin/bash
+PORT=$1
+if [[ x$PORT = x || ! -z "${PORT//[0-9]}" || ! $PORT -gt 1024 ]];then
+    echo "$0 <port 1025->>"
+    exit 1
+fi
+export FLASK_APP=server.py
+export FLASK_ENV=development
+# Use eager loading, to not time out on first request
+python3 -m flask run --eager-loading --port $PORT

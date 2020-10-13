@@ -3,3 +3,7 @@ __pycache__/
 #~
 *.pyc
 *.log
+*.lock
+.tern-port
+cache
+node_modules/
