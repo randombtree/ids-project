@@ -1,8 +1,10 @@
 import pandas as pd
 import urllib.parse as urlparse
 
-from ..lib import open_url, debug
-
+try:
+    from lib import open_url, debug
+except ModuleNotFoundError:
+    from ..lib import open_url, debug
 
 def get_property_list():
     """

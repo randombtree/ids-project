@@ -7,9 +7,15 @@ import pandas as pd
 import datetime
 import multiprocessing as mp
 
-from ..config import config
-from ..lib import debug, open_url
-from ..lib.cache import open_cached, cached_name
+
+try:
+    from config import config
+    from lib import debug, open_url
+    from lib.cache import open_cached, cached_name
+except ModuleNotFoundError:
+    from ..config import config
+    from ..lib import debug, open_url
+    from ..lib.cache import open_cached, cached_name
 
 # All seasonal data is found under this URL
 SEASONAL_BASE_URL = 'https://ies-ows.jrc.ec.europa.eu/SeasonalForecast'
