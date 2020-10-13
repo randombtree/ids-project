@@ -66,6 +66,19 @@ def get_properties():
     """
     properties = get_property_list()
     properties_df =  pd.concat(list(fetchPropDataGenerator(properties)))
+
     buildingCode = properties_df.buildings.apply(
         lambda s: pd.Series(extract_primary_building(s), dtype=np.object))
-    return pd.concat([properties_df, buildingCode], axis = 1)
+    # Drop fields we currently don't use
+    properties_df.drop(['yearOfIntroduction',
+                        'purposeOfUse',
+                        'buildingType',
+                        'buildings'],
+                       axis = 1, inplace = True)
+    df =  pd.concat([properties_df, buildingCode], axis = 1)
+    # Need to have a unique index for the drop to work properly
+    df.reset_index(drop = True, inplace = True)
+    # Remove properties that have no building code
+    df.drop(df[df['buildingCode'].isna()].index)
+    df.reset_index(drop = True, inplace = True)
+    return df
