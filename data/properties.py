@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import urllib.parse as urlparse
 
 try:
@@ -48,9 +49,23 @@ def fetchPropDataGenerator(props_df):
             debug('Not found: ', code)
             pass
 
+def extract_primary_building(s):
+    """
+    Extract the first building code; currently we are not using other than the
+    'primary' building, but later on this could change..
+    """
+    d = {}
+    if len(s) >= 1:
+        b = s[0]
+        d['buildingCode'] = b['buildingCode']
+    return d
+
 def get_properties():
     """
     Fetch all properties with data.
     """
     properties = get_property_list()
-    return pd.concat(list(fetchPropDataGenerator(properties)))
+    properties_df =  pd.concat(list(fetchPropDataGenerator(properties)))
+    buildingCode = properties_df.buildings.apply(
+        lambda s: pd.Series(extract_primary_building(s), dtype=np.object))
+    return pd.concat([properties_df, buildingCode], axis = 1)
