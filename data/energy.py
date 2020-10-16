@@ -1,6 +1,8 @@
 import pandas as pd
+import numpy as np
 import urllib.parse as urlparse
 from scipy import stats
+from sklearn import linear_model
 
 try:
     from lib import open_url, debug
@@ -47,3 +49,47 @@ def get_decade_heat_data(buildingCode):
         data = data[(np.abs(stats.zscore(data)) < 6).all(axis=1)]
     return data
 
+def generate_heating_models(properties_df, temp_df):
+
+    def make_model(row):
+        """
+        Construct model(s) for building at row
+        """
+        building = row.name # Indexing by buildingName
+        try:
+            building_heat_df = get_decade_heat_data(building)
+        except IOError as e:
+            # Building has no heating data
+            debug(f'{building} lacks data')
+            return None
+
+        #Merge df:s to make inner join
+        building_df = pd.merge(building_heat_df,
+                               temp_df["avg_temp"],
+                               left_index=True,
+                               right_index=True)
+        building_df.dropna(inplace = True)
+        if not building_df.shape[0]:
+            # No data
+            return None
+        lin_m = linear_model.LinearRegression()
+        log_m = linear_model.LinearRegression()
+
+        X = building_df["avg_temp"].values.reshape(-1, 1)
+        lin_Y = building_df["value"].values.reshape(-1, 1)
+        #Add a tiny amount to fix log(0)
+        log_Y = np.log(lin_Y + 3)
+
+        lin_m.fit(X, lin_Y)
+        log_m.fit(X, log_Y)
+        return pd.Series({
+            'datapoints':    building_df.shape[0],
+            'lin_score':     lin_m.score(X, lin_Y),
+            'lin_coef':      lin_m.coef_[0][0],
+            'lin_intercept': lin_m.intercept_[0],
+            'log_score':     log_m.score(X, log_Y),
+            'log_coef':      log_m.coef_[0][0],
+            'log_intercept': log_m.intercept_[0],
+            })
+
+    return properties_df.apply(make_model, axis=1)
