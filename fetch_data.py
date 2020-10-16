@@ -42,7 +42,9 @@ def main():
     heating_models = get_data('heating_models').or_else(
         lambda: data.generate_heating_models(properties_df, temp_df))
     heated_buildings = get_data('heated_buildings').or_else(
-        lambda: pd.concat([properties_df, heating_models], axis = 1).dropna())
+        lambda: pd.concat([properties_df, heating_models], axis = 1).drop(
+            heating_models[heating_models.datapoints.isna()].index)
+    )
 
 if __name__ == '__main__':
     main()
