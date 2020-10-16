@@ -79,6 +79,6 @@ def get_properties():
     # Need to have a unique index for the drop to work properly
     df.reset_index(drop = True, inplace = True)
     # Remove properties that have no building code
-    df.drop(df[df['buildingCode'].isna()].index)
-    df.reset_index(drop = True, inplace = True)
+    df.drop(df[df['buildingCode'].isna()].index, inplace = True)
+    df.set_index('buildingCode', inplace = True)
     return df
