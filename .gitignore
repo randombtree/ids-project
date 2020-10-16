@@ -6,4 +6,5 @@ __pycache__/
 *.lock
 .tern-port
 cache
+datastore/
 node_modules/
