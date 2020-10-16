@@ -62,7 +62,11 @@ def generate_heating_models(properties_df, temp_df):
             # Building has no heating data
             debug(f'{building} lacks data')
             return None
-
+        # Record starting & stop date
+        # these can then be used for example with df.columns.get_loc(row['heating_start'])
+        # to get the column indexes that contain data or just calculate the dates manually
+        heating_start = str(building_heat_df.iloc[0])[:10]
+        heating_stop  = str(building_heat_df.iloc[-1])[:10]
         #Merge df:s to make inner join
         building_df = pd.merge(building_heat_df,
                                temp_df["avg_temp"],
@@ -82,7 +86,7 @@ def generate_heating_models(properties_df, temp_df):
 
         lin_m.fit(X, lin_Y)
         log_m.fit(X, log_Y)
-        return pd.Series({
+        d = {
             'datapoints':    building_df.shape[0],
             'lin_score':     lin_m.score(X, lin_Y),
             'lin_coef':      lin_m.coef_[0][0],
@@ -90,6 +94,12 @@ def generate_heating_models(properties_df, temp_df):
             'log_score':     log_m.score(X, log_Y),
             'log_coef':      log_m.coef_[0][0],
             'log_intercept': log_m.intercept_[0],
-            })
+            'heating_start': heating_start,
+            'heating_stop':  heating_stop,
+        }
+        # Add the monthly heating data
+        for i, v in building_heat_df.iterrows():
+            d[str(i)[:10]] = v.value
+        return pd.Series(d)
 
     return properties_df.apply(make_model, axis=1)
