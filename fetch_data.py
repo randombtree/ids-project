@@ -13,20 +13,25 @@ DATA_STORE = 'datastore'
 class get_data:
     """
     Simple wrapper to retrieve stored data or else fetch it via a hook
+    usage:
+    - df = get_data('key').or_fail()              # Fails if there is no data in store
+    - df = get_data('key').or_else(generate_data) # Generates data if there is no data
     """
     def __init__(self, name):
-        self.name = name
+        self.fn = f'{DATA_STORE}/{name}.csv'
 
-    def or_fail(self, fn):
-        return pd.read_csv(fn, index_col = 0)
+    def or_fail(self):
+        return pd.read_csv(self.fn, index_col = 0)
 
     def or_else(self, cb):
-        fn = f'{DATA_STORE}/{self.name}.csv'
-        if os.path.isfile(fn):
-            return self.or_fail(fn)
+        try:
+            return self.or_fail()
+        except IOError:
+            # File not found, ignore
+            pass
         # Infer to callback
         df = cb()
-        df.to_csv(fn)
+        df.to_csv(self.fn)
         return df
 # / get_data
 
