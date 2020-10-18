@@ -75,10 +75,20 @@ def get_properties():
                         'buildingType',
                         'buildings'],
                        axis = 1, inplace = True)
+    # Convert coordinates to numeric
+    def fixLatLng(col):
+        if col.name in ['latitude', 'longitude']:
+            # Missing or invalid values will be converted to NaN and cand be later dropped
+            return pd.to_numeric(col, errors = 'coerce')
+        return col
+    properties_df = properties_df.apply(fixLatLng)
     df =  pd.concat([properties_df, buildingCode], axis = 1)
     # Need to have a unique index for the drop to work properly
     df.reset_index(drop = True, inplace = True)
-    # Remove properties that have no building code
-    df.drop(df[df['buildingCode'].isna()].index, inplace = True)
+    # Remove rows that lack buildingCode or coordinates
+    df.drop(
+        df[
+            df.buildingCode.isna() | df.latitude.isna() | df.longitude.isna()
+        ].index, inplace = True)
     df.set_index('buildingCode', inplace = True)
     return df

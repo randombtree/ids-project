@@ -3,26 +3,12 @@ import re
 import pandas as pd
 
 import data
-
+import fetch_data
 
 app = Flask(__name__)
 
-print('Fetching properties ...')
-df_properties = data.get_properties()
-
-# This should probably go into get_properties, buf for now.. :
-
-# Convert lat & lng to numeric
-coordRe = re.compile(r'^\d+(\.\d+)?$')
-def fixLatLng(col):
-    if col.name in ['latitude', 'longitude']:
-        # Missing or invalid values will be converted to NaN and cand be later dropped
-        return pd.to_numeric(col, errors = 'coerce')
-    return col
-df_properties = df_properties.apply(fixLatLng)
-# Drop NaN coordinates
-df_properties.dropna(inplace = True)
-
+print('Reading properties ...')
+df_buildings = fetch_data.get_data('heated_buildings').or_fail()
 
 @app.route('/')
 def index():
@@ -35,7 +21,7 @@ def hello():
 @app.route('/api/properties')
 def properties():
     return Response(
-        df_properties[['propertyName', 'latitude', 'longitude']].to_json(orient='records'),
+        df_buildings[['propertyName', 'latitude', 'longitude']].to_json(orient='records'),
         mimetype='application/json')
 
 @app.route('/', defaults={'path': ''})
