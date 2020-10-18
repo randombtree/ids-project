@@ -3,7 +3,7 @@ import os
 
 try:
     from lib import debug
-    import data.weather, data.energy, data.properties
+    import data.weather as weather, data.energy as energy, data.properties as properties
 except ModuleNotFoundError:
     from ..lib import debug
     from ..data import weather, energy, properties
