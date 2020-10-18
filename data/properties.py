@@ -57,7 +57,10 @@ def extract_primary_building(s):
     d = {}
     if len(s) >= 1:
         b = s[0]
-        d['buildingCode'] = b['buildingCode']
+        if 'buildingCode' in b and b['buildingCode']:
+            buildingCode = b['buildingCode'].strip()
+            if len(buildingCode) > 0:
+                d['buildingCode'] = buildingCode
     return d
 
 def get_properties():
@@ -90,5 +93,7 @@ def get_properties():
         df[
             df.buildingCode.isna() | df.latitude.isna() | df.longitude.isna()
         ].index, inplace = True)
+    # also remove duplicated buildings
+    df.drop_duplicates(subset='buildingCode', inplace = True)
     df.set_index('buildingCode', inplace = True)
     return df
