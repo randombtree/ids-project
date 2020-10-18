@@ -1,25 +1,14 @@
 from flask import Flask, Response, abort, send_file
-import re
-import pandas as pd
 import io
 
-import data
 import graphics
 from data.wrangler import get_data
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = 'build/static')
 
 print('Reading properties ...')
 df_buildings = get_data('heated_buildings').or_fail()
 df_temperatures = get_data('decade_temperatures').or_fail()
-
-@app.route('/')
-def index():
-    return 'Index Page'
-
-@app.route('/hello')
-def hello():
-    return 'Hello, World'
 
 @app.route('/api/properties')
 def properties():
@@ -40,6 +29,5 @@ def energy_history(building):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    # Bundle return
-    return 'You want path: %s' % path
+    return send_file('build/index.html')
 
