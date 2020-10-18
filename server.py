@@ -3,12 +3,12 @@ import re
 import pandas as pd
 
 import data
-import fetch_data
+from data.wrangler import get_data
 
 app = Flask(__name__)
 
 print('Reading properties ...')
-df_buildings = fetch_data.get_data('heated_buildings').or_fail()
+df_buildings = get_data('heated_buildings').or_fail()
 
 @app.route('/')
 def index():
