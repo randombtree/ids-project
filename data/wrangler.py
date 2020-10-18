@@ -55,5 +55,6 @@ def fetch_data():
             heating_models[heating_models.datapoints.isna()].index)
     )
     return {
-        'buildings': heated_buildings
+        'buildings': heated_buildings,
+        'temperatures': temp_df,
     }
