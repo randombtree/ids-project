@@ -14,12 +14,11 @@ function App() {
     else if (propertiesStatus.error)
         return <p>Error loading properties</p>
 
-    console.log(properties.length)
     return (
         <div className="App">
           <Map
             id="mapElement"
-            center={toLatLng(properties[0])}
+            center={toLatLng(properties[Object.keys(properties)[0]])} // Center on first building
             zoom='13'
           >
             <TileLayer
@@ -27,11 +26,13 @@ function App() {
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             />
             {
-                properties.map(p => (
-                    <Marker key={p.propertyName} position={toLatLng(p)}>
-                      <Tooltip>{p.propertyName}</Tooltip>
-                    </Marker>
-                ))
+                Object.entries(properties)
+                    .map(([buildingCode, p]) => (
+                        <Marker key={buildingCode} position={toLatLng(p)}>
+                          <Tooltip>{p.propertyName}</Tooltip>
+                        </Marker>
+                    ))
+
             }
           </Map>
         </div>

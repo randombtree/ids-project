@@ -21,7 +21,7 @@ def hello():
 @app.route('/api/properties')
 def properties():
     return Response(
-        df_buildings[['propertyName', 'latitude', 'longitude']].to_json(orient='records'),
+        df_buildings[['propertyName', 'latitude', 'longitude']].to_json(orient='index'),
         mimetype='application/json')
 
 @app.route('/', defaults={'path': ''})
