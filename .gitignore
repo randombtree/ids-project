@@ -5,6 +5,7 @@ __pycache__/
 *.log
 *.lock
 .tern-port
+build/
 cache
 datastore/
 node_modules/
