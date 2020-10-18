@@ -1,0 +1,17 @@
+#!/bin/bash
+# Create a production build self-contained tar-ball
+if [ ! -f "datastore/heated_buildings.csv" ];then
+    echo "fetch data first!"
+    exit 1
+fi
+version=$(sed -nr 's/^\s*\"version\"\s*:\s*\"([.0-9]+)\".*/\1/p' package.json)
+echo Building version $version
+# Make sure we get a fresh build
+rm -rf build
+yarn run build
+
+tar --transform 's/^/idsserver-'${version}'\//' \
+    --exclude-backups \
+    --exclude=__pycache__ \
+    -czf ../idsserver-${version}.tar.gz \
+    build/ config/ data/ datastore/ lib/ graphics/ start_server server.py
