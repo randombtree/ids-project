@@ -65,8 +65,8 @@ def generate_heating_models(properties_df, temp_df):
         # Record starting & stop date
         # these can then be used for example with df.columns.get_loc(row['heating_start'])
         # to get the column indexes that contain data or just calculate the dates manually
-        heating_start = str(building_heat_df.iloc[0])[:10]
-        heating_stop  = str(building_heat_df.iloc[-1])[:10]
+        heating_start = str(building_heat_df.iloc[0].name)[:10]
+        heating_stop  = str(building_heat_df.iloc[-1].name)[:10]
         #Merge df:s to make inner join
         building_df = pd.merge(building_heat_df,
                                temp_df["avg_temp"],
