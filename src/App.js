@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Map, TileLayer, Marker, Tooltip } from 'react-leaflet'
+import { Map, TileLayer, Marker, Tooltip, Popup } from 'react-leaflet'
 import './App.css'
 
 import { useFetch } from './hooks'
@@ -30,6 +30,9 @@ function App() {
                     .map(([buildingCode, p]) => (
                         <Marker key={buildingCode} position={toLatLng(p)}>
                           <Tooltip>{p.propertyName}</Tooltip>
+                          <Popup>
+                            <img src={`/api/properties/${buildingCode}/energy_history`}/>
+                          </Popup>
                         </Marker>
                     ))
 
