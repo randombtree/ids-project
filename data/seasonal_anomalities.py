@@ -1,12 +1,11 @@
 #@title
 # Seasonal anomalities
 import re
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import datetime
 import multiprocessing as mp
-
+import matplotlib.image as mpimg
 
 try:
     from config import config
@@ -94,7 +93,7 @@ def get_seasonal_temp_anomaly_from(fn):
     for Helsinki.
     """
     with open_url(f'{SEASONAL_BASE_URL}/{fn}', 'rb') as f:
-        img = plt.imread(f)
+        img = mpimg.imread(f)
         if img.shape != (4810, 6260, 4):
             raise Exception('Image shape has changed, must re-calibrate')
 
@@ -120,10 +119,7 @@ def get_seasonal_temp_anomaly_from(fn):
         if config.DEBUG:
             dbgname = 'debug_anomality_image.png'
             debug(f'Saving a copy of the problematic image as "{dbgname}"')
-            plt.imsave(dbgname, img)
-            debug('Drawign image')
-            plt.imshow(img)
-            plt.show()
+            mpimg.imsave(dbgname, img)
 
         raise Exception(f'Color {rgb} not found in mapping?')
     raise Exception('Fail')
