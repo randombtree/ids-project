@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 import datetime
 
 from lib.util import month_range
@@ -23,7 +25,9 @@ def plot_energy_temperature_history(building, temp_df, prognosis_df, out):
 
     # Change to datetime
     df.rename(index = lambda s: datetime.datetime.fromisoformat(s), inplace = True)
-    fig, ax = plt.subplots(figsize=(5,4))
+    fig = Figure()
+    canvas = FigureCanvas(fig)
+    ax = fig.add_subplot(111)
     # Heating actualized
     ax.plot(df["value"], 'r-')
     ax.set_ylabel("Heat energy usage by month, KWh")
@@ -37,11 +41,11 @@ def plot_energy_temperature_history(building, temp_df, prognosis_df, out):
 
     # Temperatures
     ax2 = ax.twinx()
-    plt.gca().invert_yaxis()
+    fig.gca().invert_yaxis()
     ax2.plot(df["avg_temp"], 'g-', alpha=0.7)
     ax2.set_ylabel("Average temperature, °C")
     ax2.legend("Temp (inv)")
 
-    plt.tight_layout()
+    fig.tight_layout()
     fig.autofmt_xdate()
-    plt.savefig(out)
+    fig.savefig(out)
