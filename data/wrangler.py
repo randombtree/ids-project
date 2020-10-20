@@ -49,6 +49,8 @@ def fetch_data():
         lambda: properties.get_properties())
     temp_df = get_data('decade_temperatures').or_else(
         lambda: weather.get_decade_temperatures())
+    avgtemp_df = get_data('avg_temperatures').or_else(
+        lambda: weather.get_monthly_averages(temp_df))
     heating_models = get_data('heating_models').or_else(
         lambda: energy.generate_heating_models(properties_df, temp_df))
     heated_buildings = get_data('heated_buildings').or_else(
@@ -60,5 +62,6 @@ def fetch_data():
     return {
         'buildings': heated_buildings,
         'temperatures': temp_df,
+        'avg_temperatures': avgtemp_df,
         'seasonal_anomalities': anomalities,
     }
