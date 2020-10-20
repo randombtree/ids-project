@@ -23,7 +23,6 @@ def plot_energy_temperature_history(building, temp_df, prognosis_df, out):
 
     # Change to datetime
     df.rename(index = lambda s: datetime.datetime.fromisoformat(s), inplace = True)
-    print(type(df.index[0]))
     fig, ax = plt.subplots(figsize=(5,4))
     # Heating actualized
     ax.plot(df["value"], 'r-')
