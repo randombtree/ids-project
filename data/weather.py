@@ -53,3 +53,17 @@ def get_decade_temperatures():
     df.index = pd.to_datetime(df.reset_index()["date"].apply(lambda x: x.strftime('%Y-%m')))
     return df
 
+def get_monthly_averages(temp_df):
+    """
+    Return average temperatures per month for temp_df,
+    which is expected to be in the format provided by get_decade_temperatures()
+    """
+    avgs = list((0,0) for _ in range(0,12)) # (count, sum) for each month
+    for index, row in temp_df.iterrows():
+        month = int(index[5:7]) - 1
+        counts = avgs[month]
+        temp = row.avg_temp + 273 # Kelvin-ish
+        avgs[month] = (counts[0] + 1, counts[1] + temp)
+    # Calculate averages
+    avgs = list(map(lambda i: (i[1] / i[0]) - 273, avgs))
+    return pd.DataFrame(avgs, index = range(1,13), columns=['avg_temp'])
