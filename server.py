@@ -3,12 +3,15 @@ import io
 
 import graphics
 from data.wrangler import get_data
+from data.energy import make_prognosis
 
 app = Flask(__name__, static_folder = 'build/static')
 
 print('Reading properties ...')
 df_buildings = get_data('heated_buildings').or_fail()
 df_temperatures = get_data('decade_temperatures').or_fail()
+df_avgtemp = get_data('avg_temperatures').or_fail()
+df_anomalities = get_data('seasonal_anomalities').or_fail()
 
 @app.route('/api/properties')
 def properties():
@@ -20,9 +23,11 @@ def properties():
 def energy_history(building):
     if not building in df_buildings.index:
         abort(404)
+    row = df_buildings.loc[building]
+    prognosis = make_prognosis(row, df_avgtemp, df_anomalities)
     # Store image in memory
     buf = io.BytesIO()
-    graphics.plot_energy_temperature_history(df_buildings.loc[building], df_temperatures, buf)
+    graphics.plot_energy_temperature_history(row, df_temperatures, prognosis, buf)
     buf.seek(0)
     return send_file(buf, mimetype='image/png')
 
