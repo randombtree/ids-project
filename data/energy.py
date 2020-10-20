@@ -3,6 +3,7 @@ import numpy as np
 import urllib.parse as urlparse
 from scipy import stats
 from sklearn import linear_model
+import datetime
 import pickle
 import base64
 
@@ -43,8 +44,13 @@ def get_decade_heat_data(buildingCode):
     Get 10 years of heat data for building.
     throws: HTTPError if resource does not exist
     """
-
-    data = get_monthly_energy_data(buildingCode, 'Heat', '2010-01-01', '2020-01-01')
+    # Begin fetching from last month
+    d = datetime.date.today()
+    lastmonth = d - datetime.timedelta(days = d.day - 1)
+    data = get_monthly_energy_data(buildingCode,
+                                   'Heat',
+                                   f'{lastmonth.year - 10}-{lastmonth.month}-01',
+                                   lastmonth.strftime('%Y-%m-%d')) # Unsure if ranges are inclusive or exclusive
     data["date"] = pd.to_datetime(data["timestamp"])
     #Set data for each month to be listed on first day of the month
     data["date"] = pd.to_datetime(data["date"].apply(lambda x: x.strftime('%Y-%m')))
