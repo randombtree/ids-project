@@ -14,4 +14,4 @@ tar --transform 's/^/idsserver-'${version}'\//' \
     --exclude-backups \
     --exclude=__pycache__ \
     -czf ../idsserver-${version}.tar.gz \
-    build/ config/ data/ datastore/ lib/ graphics/ start_server server.py
+    build/ config/ data/ datastore/ lib/ graphics/ start_server server.py wsgi.py requirements.txt
