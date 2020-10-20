@@ -181,6 +181,8 @@ def anomalities_for(anomalities, index = -1):
     row = anomalities.iloc[index]
     start_month = row.name
     df = pd.DataFrame(row)
+    # Value row gets the index name - rename it
+    df.rename(columns=lambda x: 'month' if len(x) == 0 else 'anomality', inplace = True)
     # Now need to rename indexes from "month0".. to start_month..
     new_index = list(month_range(row.name, 7))
     df.rename(index = lambda x: new_index[int(x[-1])], inplace = True)
