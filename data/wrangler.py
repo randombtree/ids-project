@@ -4,9 +4,10 @@ import os
 try:
     from lib import debug
     import data.weather as weather, data.energy as energy, data.properties as properties
+    import data.seasonal_anomalities as seasonal_anomalities
 except ModuleNotFoundError:
     from ..lib import debug
-    from ..data import weather, energy, properties
+    from ..data import weather, energy, properties, seasonal_anomalities
 
 # Directory for store
 DATA_STORE = 'datastore'
@@ -54,7 +55,10 @@ def fetch_data():
         lambda: pd.concat([properties_df, heating_models], axis = 1).drop(
             heating_models[heating_models.datapoints.isna()].index)
     )
+    anomalities = get_data('seasonal_anomalities').or_else(
+        lambda: seasonal_anomalities.get_seasonal_anomalities())
     return {
         'buildings': heated_buildings,
         'temperatures': temp_df,
+        'seasonal_anomalities': anomalities,
     }
