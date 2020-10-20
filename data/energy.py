@@ -36,6 +36,7 @@ def get_monthly_energy_data(buildingCode, reporting_group, start_time, end_time)
         'EndTime': end_time
       })
   search_url = f'{ENERGY_RESOURCE}?{params}'
+  debug(f'Requesting {search_url}')
   ret = pd.read_json(open_url(search_url))
   return ret
 
