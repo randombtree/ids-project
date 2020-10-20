@@ -3,11 +3,17 @@ import numpy as np
 import urllib.parse as urlparse
 from scipy import stats
 from sklearn import linear_model
+import pickle
+import base64
 
 try:
     from lib import open_url, debug
+    from data.seasonal_anomalities import anomalities_for
+    from lib.util import month_range
 except ModuleNotFoundError:
     from ..lib import open_url, debug
+    from ..data.seasonal_anomalities import anomalities_for
+    from ..lib.util import month_range
 
 ENERGY_RESOURCE = 'https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Monthly/ListByProperty'
 VALID_REPORTING_GROUPS = ['Electricity', 'Heat', 'Water', 'DistrictCooling']
@@ -91,9 +97,11 @@ def generate_heating_models(properties_df, temp_df):
             'lin_score':     lin_m.score(X, lin_Y),
             'lin_coef':      lin_m.coef_[0][0],
             'lin_intercept': lin_m.intercept_[0],
+            'lin_model':     base64.b64encode(pickle.dumps(lin_m)).decode(), # Need to keep as regular str
             'log_score':     log_m.score(X, log_Y),
             'log_coef':      log_m.coef_[0][0],
             'log_intercept': log_m.intercept_[0],
+            'log_model':     base64.b64encode(pickle.dumps(log_m)).decode(),
             'heating_start': heating_start,
             'heating_stop':  heating_stop,
         }
@@ -103,3 +111,25 @@ def generate_heating_models(properties_df, temp_df):
         return pd.Series(d)
 
     return properties_df.apply(make_model, axis=1)
+
+def unthaw(s):
+    return pickle.loads(base64.b64decode(s))
+
+def make_prognosis(building, avg_df, anomalities_df):
+    """
+    Make prognosis on building energy consumtion, when served with the
+    average temperature and the latest temperature anomalities.
+    """
+    df = anomalities_for(anomalities_df)
+    df['month'] = df.index.str[5:7].astype(int)
+    df2 = df.merge(how='left', right = avg_df, left_on = 'month', right_index = True)
+    df2['predicted_temp'] = df2.anomality + df2.avg_temp
+    # Choose the best model
+    model = unthaw(building.lin_model) if building.lin_score > building.log_score else unthaw(building.log_model)
+    prediction = model.predict(df2.predicted_temp.values.reshape(-1, 1))
+    return pd.DataFrame(
+        prediction,
+        index = df.index,
+        columns = ['heating']
+    )
+
