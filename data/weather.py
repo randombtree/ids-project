@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as ET
+import datetime
 
 try:
     from lib import open_url, debug
@@ -9,14 +10,15 @@ except ModuleNotFoundError:
 
 def get_decade_temperatures():
     """
-    Gather weather data for 2010-2020
+    Gather weather data for 2010-now
     """
     ids = [101007, 101004, 100971, 100973]
     df = pd.DataFrame()
     for fmi_id in ids:
         days = []
         avg_temperatures = []
-        for year in np.arange(2010, 2020, 1):
+        today = datetime.date.today()
+        for year in range(2010, today.year + 1):
             with open_url(f'https://opendata.fmi.fi/wfs?request=getFeature&storedquery_id=fmi%3A%3Aobservations%3A%3Aweather%3A%3Adaily%3A%3Atimevaluepair&crs=EPSG%3A%3A3067&fmisid={fmi_id}&starttime={year}-01-01T00:00:00Z&endtime={year}-12-31T23:59:59Z', mode='rb') as fh:
                 etree = ET.parse(fh)
                 root = etree.getroot()
