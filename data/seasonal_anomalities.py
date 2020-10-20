@@ -12,10 +12,12 @@ try:
     from config import config
     from lib import debug, open_url
     from lib.cache import open_cached, cached_name
+    from lib.util import month_range
 except ModuleNotFoundError:
     from ..config import config
     from ..lib import debug, open_url
     from ..lib.cache import open_cached, cached_name
+    from ..lib.util import month_range
 
 # All seasonal data is found under this URL
 SEASONAL_BASE_URL = 'https://ies-ows.jrc.ec.europa.eu/SeasonalForecast'
@@ -170,4 +172,16 @@ def get_seasonal_anomalities():
                       columns = ['date'] + [f'month{n}' for n in range(7)])
     df.set_index('date', inplace = True)
     df.to_json(open_cached(CACHE_SEASONAL, mode='w'))
+    return df
+
+def anomalities_for(anomalities, index = -1):
+    """
+    Returns a DataFrame with the dates for the last (or index) anomality report.
+    """
+    row = anomalities.iloc[index]
+    start_month = row.name
+    df = pd.DataFrame(row)
+    # Now need to rename indexes from "month0".. to start_month..
+    new_index = list(month_range(row.name, 7))
+    df.rename(index = lambda x: new_index[int(x[-1])], inplace = True)
     return df
